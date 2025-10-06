@@ -1,0 +1,87 @@
+{% extends 'base.html.twig' %}
+
+{% block body %}
+
+    <div class="">
+        <h1 class="text-4xl lg:text-7xl text-white mt-3 lg:mt-6 mb-12 text-center">{{ 'article.index.slogan'|trans }}</h1>
+        <div>
+            {% for article in articles %}
+            <div class="bg-white my-2 rounded-2xl p-5">
+                <a href="{{ path('app_article_show', {slug: article.slug}) }}">
+                    <div class="flex flex-col md:flex-row">
+                        <img class="h-[206px] md:h-[412px] rounded-2xl" src="{{ asset('images/%s.png'|format(article.slug)) }}">
+                        <div class="article-title d-inline-block pl-3 align-middle">
+                            <div class="text-[#E53384] font-bold mt-8"> {{ article.publishedAt|date('F j, Y') }}</div>
+                            <div class="text-5xl font-medium mt-4">{{ article|translate_object.title }}</div>
+                            <div class="line-clamp-3 my-5">{{ article|translate_object.content|markdown_to_html }}</div>
+                            <div class="flex items-center">
+                                <img class="rounded-full mr-1.5 h-10 w-10" src="{{ asset('images/alien-profile.png') }}">
+                                <div>{{ article.author }}</div>
+                            </div>
+                        </div>
+                    </div>
+                </a>
+            </div>
+            {% endfor %}
+        </div>
+
+        <div class="flex justify-center mt-[80px]">
+            <div class="relative bg-[#FFE941] rounded-4xl lg:flex lg:justify-between p-4.5 w-[600px]">
+                <img class="absolute bottom-0 left-4 h-[180px] lg:h-[140px]" src="{{ asset('images/icecream.png') }}">
+                <div class="lg:ml-[80px] text-center lg:text-left">
+                    <div class="capitalize font-bold opacity-75">{{ 'article.index.ad.ice_cream.tag'|trans }}</div>
+                    <div class="text-2xl lg:text-[42px]">{{ 'article.index.ad.ice_cream.title'|trans }}</div>
+                </div>
+                <div class="flex justify-center mt-2">
+                    <button class="rounded-lg p-2.5 text-white bg-black font-bold capitalize self-center">{{ 'article.index.ad.buy'|trans }}</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="bg-white rounded-2xl p-7 mt-[80px]">
+            <h3 class="text-6xl font-bold">{{ 'article.index.trending_quotes'|trans }}</h3>
+
+            <div class="flex flex-col md:flex-row my-9">
+                <img class="rounded-full h-[75px] w-[75px] outline-8 outline-[#219AD3] outline-offset-4" src="{{ asset('images/suni-williams.png') }}" alt="">
+                <div class="mt-6 md:mt-0 md:ml-5">
+                    <div>
+                        "When you look at the darkest areas in space, you feel that there's something out there that we don't know about."
+                    </div>
+                    <div class="font-bold">
+                        <a href="https://en.wikipedia.org/wiki/Sunita_Williams">Suni William</a>
+                    </div>
+                    <div class="text-[#219AD3] font-bold">Discovery Astronaut</div>
+                </div>
+            </div>
+
+            <div class="flex flex-col md:flex-row mb-9">
+                <img class="rounded-full h-[75px] w-[75px] outline-8 outline-[#D35121] outline-offset-4" src="{{ asset('images/chris-hadfield.png') }}" alt="Aaron Cohen">
+                <div class="mt-6 md:mt-0 md:ml-5">
+                    <div>
+                        "If you don't like airline food, you'll probably have the same impression of space station food. I would not fly to space for the food."
+                    </div>
+                    <div class="font-bold">
+                        <a href="https://en.wikipedia.org/wiki/Chris_Hadfield">Chris Hadfield</a>
+                    </div>
+                    <div class="text-[#D35121] font-bold">Atlantis & Endeavour Astronaut</div>
+                </div>
+            </div>
+
+            <div class="flex flex-col md:flex-row mb-9">
+                <img class="rounded-full h-[75px] w-[75px] outline-8 outline-[#2CCA7B] outline-offset-4"  src="{{ asset('images/christa-mcauliffe.png') }}" alt="Christa McAuliffe">
+                <div class="mt-6 md:mt-0 md:ml-5">
+                    <div>
+                        "Space is for everybody. It's not just for a few people in science or math, or for a select group of astronauts. That's our new frontier out there, and it's everybody's business to know about space."
+                    </div>
+                    <div class="font-bold">
+                        <a href="https://en.wikipedia.org/wiki/Christa_McAuliffe">Christa McAuliffe</a>
+                    </div>
+                    <div class="font-bold text-[#2CCA7B]">
+                        Challenger Astronaut
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+{% endblock %}

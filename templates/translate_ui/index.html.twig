@@ -1,0 +1,29 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Translate UI{% endblock %}
+
+{% block body %}
+    <div data-controller="translate-ui"
+         data-translate-ui-default-locale-value="{{ defaultLocale }}"
+         class=""
+    >
+        <h2>Translate UI ✅</h2>
+
+        <nav class="nav nav-tabs">
+        {% for objectName in objectNames %}
+            <a
+                href="#"
+                data-translate-ui-target="object"
+                data-translate-ui-object-name-param="{{ objectName }}"
+                data-action="translate-ui#switchObject"
+                class="nav-link"
+            >
+                {{ objectName|title }}
+            </a>
+        {% endfor %}
+        </nav>
+
+        <div data-translate-ui-target="listContainer"></div>
+
+    </div>
+{% endblock %}

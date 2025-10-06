@@ -13,6 +13,7 @@
         "elkuku/symfony-utils": "dev-master",
         "google/apiclient": "^2.15",
         "knpuniversity/oauth2-client-bundle": "^v2.17.0",
+        "league/commonmark": "^2.7",
         "league/oauth2-github": "^3.1",
         "league/oauth2-google": "^4.0",
         "php-cs-fixer/shim": "^3.88",
@@ -48,9 +49,18 @@
         "symfony/validator": "*",
         "symfony/web-link": "*",
         "symfony/yaml": "*",
+        "symfonycasts/object-translation-bundle": "@dev",
         "twig/extra-bundle": "^2.12|^3.0",
+        "twig/markdown-extra": "^3.21",
+        "twig/string-extra": "^3.21",
         "twig/twig": "^2.12|^3.0"
     },
+    "repositories": [
+        {
+            "type": "path",
+            "url": "object-translation-bundle"
+        }
+    ],
     "config": {
         "allow-plugins": {
             "php-http/discovery": true,
@@ -123,6 +133,7 @@
         "symfony/maker-bundle": "^1.0",
         "symfony/phpunit-bridge": "^7.0",
         "symfony/stopwatch": "*",
-        "symfony/web-profiler-bundle": "*"
+        "symfony/web-profiler-bundle": "*",
+        "zenstruck/foundry": "^2.7"
     }
 }

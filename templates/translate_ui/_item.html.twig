@@ -1,0 +1,25 @@
+{# TODO: create a beautiful translate item view #}
+{% for property, type in entity.properties %}
+    <div>
+        {% set value = attribute(object, property) %}
+        <b>{{ property~'('~type~')' }}</b><br>
+        {% if 'string' == type %}
+            <input type="text" value="{{ value }}"
+                   class="form-control"
+            />
+        {% elseif 'markdown' == type %}
+            <textarea name="" id="" cols="80" rows="10" class="form-control">{{ value }}</textarea>
+        {% else %}
+            UNKNOWN TYPE: {{ type }}
+        {% endif %}
+    </div>
+{% endfor %}
+{{ fieldIndex }}
+<button class="btn btn-success" {{ stimulus_action('translate-ui', 'saveTranslation', 'click', {
+    'index': fieldIndex,
+}) }}>Save
+</button>
+<button class="btn btn-danger" {{ stimulus_action('translate-ui', 'cancelTranslation', 'click', {
+    'index': fieldIndex,
+}) }}>Cancel
+</button>

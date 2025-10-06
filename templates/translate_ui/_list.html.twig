@@ -1,0 +1,47 @@
+{# TODO: create a beautiful translate list view #}
+
+{% set index = 0 %}
+
+{% for item in items %}
+    <hr>
+    <div>
+        {{ identifierName }}: {{ attribute(item, identifierName) }} - {{ defaultLocale }}
+    </div>
+    {% for property, type in properties %}
+        <div>
+            <b>{{ property }}</b>:
+            {% if 'string' == type %}
+                {{ attribute(item, property) }}
+            {% elseif 'markdown' == type %}
+                <br>
+                {# TODO expand this with JS #}
+                {{ attribute(item, property)|u.truncate(100, '...', false) }}
+            {% else %}
+                UNKNOWN TYPE: {{ type }}
+            {% endif %}
+        </div>
+    {% endfor %}
+    {% for locale in app.enabled_locales %}
+        {% if locale != defaultLocale %}
+            <button
+                {{ stimulus_action(
+                    'translate-ui', 'loadTranslation', 'click',
+                    {
+                        'objectName': objectName,
+                        'id': attribute(item, identifierName),
+                        'locale': locale,
+                        'index': index
+                    }
+                ) }}
+                class="btn btn-info"
+            >
+                {{ locale }}
+            </button>
+        {% endif %}
+    {% endfor %}
+
+    <div data-translate-ui-target="itemContainer"></div>
+
+    {% set index = index + 1 %}
+
+{% endfor %}

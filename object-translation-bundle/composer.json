@@ -1,0 +1,23 @@
+{
+    "name": "symfonycasts/object-translation-bundle",
+    "description": "Translate!",
+    "type": "symfony-bundle",
+    "license": "MIT",
+    "autoload": {
+        "psr-4": {
+            "SymfonyCasts\\ObjectTranslationBundle\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "SymfonyCasts\\ObjectTranslationBundle\\Tests\\": "tests/"
+        }
+    },
+    "authors": [
+        {
+            "name": "elkuku",
+            "email": "der.el.kuku@gmail.com"
+        }
+    ],
+    "require": {}
+}

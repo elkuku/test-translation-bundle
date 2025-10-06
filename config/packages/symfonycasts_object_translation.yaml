@@ -1,0 +1,3 @@
+symfonycasts_object_translation:
+    # The class name of your Translation entity
+    translation_class:    'App\Entity\Translation' # Example: App\Entity\Translation
