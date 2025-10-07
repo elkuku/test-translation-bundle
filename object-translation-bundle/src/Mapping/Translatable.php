@@ -7,7 +7,6 @@ final class Translatable
 {
     public function __construct(
         public string $name,
-    )
-    {
+    ) {
     }
 }

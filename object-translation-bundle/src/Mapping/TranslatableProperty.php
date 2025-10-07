@@ -7,7 +7,6 @@ class TranslatableProperty
 {
     public function __construct(
         public string $type = 'string',
-    )
-    {
+    ) {
     }
 }

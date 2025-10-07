@@ -1,50 +1,15 @@
 import {Controller} from '@hotwired/stimulus';
 
-/*
-* The following line makes this controller "lazy": it won't be downloaded until needed
-* See https://symfony.com/bundles/StimulusBundle/current/index.html#lazy-stimulus-controllers
-*/
-
 /* stimulusFetch: 'lazy' */
 export default class extends Controller {
-    static targets = ['object', 'listContainer', 'itemContainer']
-    static values = {
-        defaultLocale: String,
-    }
+    static targets = ['object', 'listContainer', 'itemContainer', 'statusContainer']
 
-    initialize() {
-        // Called once when the controller is first instantiated (per element)
-
-        // Here you can initialize variables, create scoped callables for event
-        // listeners, instantiate external libraries, etc.
-        // this._fooBar = this.fooBar.bind(this)
-    }
-
-    connect() {
-        console.log('Connected - ' + this.defaultLocaleValue);
-        // Called every time the controller is connected to the DOM
-        // (on page load, when it's added to the DOM, moved in the DOM, etc.)
-
-        // Here you can add event listeners on the element or target elements,
-        // add or remove classes, attributes, dispatch custom events, etc.
-        // this.fooTarget.addEventListener('click', this._fooBar)
-    }
-
-    // Add custom controller actions here
-    // fooBar() { this.fooTarget.classList.toggle(this.bazClass) }
-
-    disconnect() {
-        // Called anytime its element is disconnected from the DOM
-        // (on page change, when it's removed from or moved in the DOM, etc.)
-
-        // Here you should remove all event listeners added in "connect()"
-        // this.fooTarget.removeEventListener('click', this._fooBar)
-    }
-
-    async switchObject(event) {
+        async switchObject(event) {
         const objectName = event.params.objectName;
 
-        this.objectTargets.forEach(target => {target.classList.remove('active');});
+        this.objectTargets.forEach(target => {
+            target.classList.remove('active');
+        });
         event.target.classList.add('active');
 
         try {
@@ -59,11 +24,14 @@ export default class extends Controller {
         }
     }
 
-    async loadTranslation({params: {objectName, id, locale, index}}) {
-        const target =  this.itemContainerTargets[index]
+    async loadTranslation({params: {objectName, field, id, locale, index}}) {
+        const target = this.itemContainerTargets[index]
+        const status = this.statusContainerTargets[index]
+
+        status.innerHTML = 'Loading...';
 
         try {
-            const response = await fetch(`/translate-ui/${objectName}/${id}/${locale}/${index}`);
+            const response = await fetch(`/translate-ui/${objectName}/${id}/${field}/${locale}/${index}`);
             if (response.ok) {
                 target.innerHTML = await response.text();
             } else {
@@ -73,22 +41,51 @@ export default class extends Controller {
             target.innerHTML = 'Error fetching partial: ' + error;
         }
 
+        status.innerHTML = '';
     }
 
-    saveTranslation(event) {
-        const index = event.params.index;
-        const element =  this.itemContainerTargets[index]
-        console.log(index, element);
-        const allInputs = element.querySelectorAll('input');
-        console.log(allInputs);
-        const allInputs2 = element.querySelectorAll('textarea');
-        console.log(allInputs2);
-        allInputs.forEach(input => {
-            console.log(input.value);
-        })
-        allInputs2.forEach(input => {
-            console.log(input.value);
-        })
+    async saveTranslation({params: {objectName, id, field, locale, index}}) {
+        const element = this.itemContainerTargets[index]
+        const status = this.statusContainerTargets[index]
+
+        status.innerHTML = 'Saving...';
+        let value = ''
+
+        for (const el of ['input', 'textarea']) {
+            element.querySelectorAll(el).forEach(e => {
+                if (field === e.dataset.property) {
+                    value = e.value;
+                }
+            })
+        }
+
+        const data = {
+            objectName: objectName,
+            field: field,
+            id: id,
+            value: value,
+            locale: locale
+        };
+
+        try {
+            const response = await fetch('/translate-ui/save', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(data)
+            });
+
+            if (response.ok) {
+                status.innerHTML = await response.text();
+                element.innerHTML = '';
+
+            } else {
+                status.innerHTML = 'Failed to load partial: ' + response.statusText;
+            }
+        } catch (error) {
+            status.innerHTML = 'Error fetching partial: ' + error;
+        }
     }
 
     cancelTranslation({params: {index}}) {

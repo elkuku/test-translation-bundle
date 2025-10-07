@@ -1,0 +1,30 @@
+<div
+    data-controller="dropdown"
+    class=""
+>
+    <button
+        href="#"
+        class="btn btn-dark"
+        data-action="dropdown#toggle click@window->dropdown#hide keydown.esc@window->dropdown#hide"
+    >
+        {{ app.locale }}
+    </button>
+    <ul
+        hidden
+        data-dropdown-target="content"
+        class="list-unstyled"
+    >
+        {% for locale in app.enabled_locales %}
+            {% if locale != app.locale %}
+                <li class="">
+                    <a
+                        class="btn btn-dark"
+                        href="{{ path(app.current_route, app.current_route_parameters|merge({_locale: locale})) }}"
+                    >
+                        {{ locale }}
+                    </a>
+                </li>
+            {% endif %}
+        {% endfor %}
+    </ul>
+</div>

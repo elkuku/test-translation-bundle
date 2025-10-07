@@ -2,10 +2,13 @@
 
 namespace App\Controller;
 
+use App\Entity\Translation;
 use App\Service\TranslationHelper;
 use Doctrine\Persistence\ManagerRegistry;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
+use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Contracts\Translation\LocaleAwareInterface;
@@ -48,7 +51,7 @@ final class TranslateUiController extends AbstractController
             $htmlContent = $this->renderView('translate_ui/_list.html.twig', [
                 'objectName' => $objectName,
                 'items' => $items,
-                'properties' => $entity->properties,
+                'fields' => $entity->properties,
                 'defaultLocale' => $defaultLocale,
                 'identifierName' => $identifiers[0],
             ]);
@@ -59,9 +62,9 @@ final class TranslateUiController extends AbstractController
         return new Response($htmlContent);
     }
 
-    #[Route('/translate-ui/{objectName}/{id}/{locale}/{fieldIndex}', name: 'app_translate_ui_item')]
+    #[Route('/translate-ui/{objectName}/{id}/{field}/{locale}/{fieldIndex}', name: 'app_translate_ui_item', methods: ['GET'])]
     public function item(
-        string $objectName, string $id, string $locale, int $fieldIndex,
+        string $objectName, string $id, string $field, string $locale, int $fieldIndex,
         ObjectTranslator $translator,
         LocaleAwareInterface $localeAware,
         TranslationHelper $translationHelper,
@@ -92,7 +95,8 @@ final class TranslateUiController extends AbstractController
 
         $htmlContent = $this->renderView('translate_ui/_item.html.twig', [
             'objectName' => $objectName,
-            $identifierName => $id,
+            'field' => $field,
+            'id' => $id,
             'locale' => $locale,
             'entity' => $entity,
             'object' => $object,
@@ -100,5 +104,44 @@ final class TranslateUiController extends AbstractController
         ]);
 
         return new Response($htmlContent);
+    }
+
+    #[Route('/translate-ui/save', name: 'app_translate_ui_save', methods: ['POST'])]
+    public function save(
+        ManagerRegistry $doctrine,
+        Request $request,
+    ): JsonResponse {
+        $statusCode = 200;
+
+        $data = \json_decode($request->getContent(), false, 512, JSON_THROW_ON_ERROR);
+
+        /**
+         * @var Translation $translation
+         */
+        $translation = $doctrine
+            ->getRepository(Translation::class)
+            ->findOneBy([
+                'locale' => $data->locale,
+                'objectType' => $data->objectName,
+                'field' => $data->field,
+                'objectId' => $data->id,
+            ]);
+
+        if (!$translation) {
+            $translation = new Translation();
+
+            $translation->locale = $data->locale;
+            $translation->objectType = $data->objectName;
+            $translation->field = $data->field;
+            $translation->objectId = $data->id;
+        }
+
+        $translation->value = $data->value;
+
+        $manager = $doctrine->getManager();
+        $manager->persist($translation);
+        $manager->flush();
+
+        return $this->json(['OK'], $statusCode);
     }
 }
