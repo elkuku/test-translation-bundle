@@ -48,12 +48,30 @@ final class TranslateUiController extends AbstractController
 
             $identifiers = $objectManager->getClassMetadata($entity->className)->getIdentifier();
 
+            // Load translations (TODO: Join?)
+            $objectIds = [];
+            $repository = $doctrine->getRepository(Translation::class);
+
+            foreach ($items as $item) {
+                $objectIds[] = $item->getId();
+            }
+
+            $translations = $repository->findByObjectAndObjectIds($objectName, $objectIds);
+
+            $translationIndex = [];
+            foreach ($translations as $translation) {
+                $fieldName = "{$translation->objectId}-{$translation->field}-{$translation->locale}";
+                // TODO: Support for different states (e.g. translated, draft...)
+                $translationIndex[$fieldName] = 'translated';
+            }
+
             $htmlContent = $this->renderView('translate_ui/_list.html.twig', [
                 'objectName' => $objectName,
                 'items' => $items,
                 'fields' => $entity->properties,
                 'defaultLocale' => $defaultLocale,
                 'identifierName' => $identifiers[0],
+                'translationIndex' => $translationIndex,
             ]);
         } catch (\RuntimeException $exception) {
             $htmlContent = $exception->getMessage();

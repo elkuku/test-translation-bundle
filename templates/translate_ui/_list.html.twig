@@ -1,6 +1,6 @@
+{# TODO: Create a beautiful "translate list" view. #}
 
-{# TODO: create a beautiful translate list view #}
-
+{# TODO: Can we get rid of this index? #}
 {% set index = 0 %}
 
 {% for item in items %}
@@ -20,19 +20,36 @@
 
         {% for locale in app.enabled_locales %}
             {% if locale != defaultLocale %}
+                {% set id = attribute(item, identifierName) %}
+                {% set trIndex = id~'-'~field~'-'~locale %}
+                {% if trIndex in translationIndex|keys %}
+                    {% set trStatus = translationIndex[trIndex] %}
+                    {% if 'translated' == trStatus %}
+                        {% set color = 'green' %}
+                    {% else %}
+                        {# TODO add more states (e.g. draft) #}
+                        {% set color = 'red' %}
+                    {% endif %}
+
+                {% else %}
+                    {% set color = 'blue' %}
+                {% endif %}
                 <button
                     {{ stimulus_action(
                         'translate-ui', 'loadTranslation', 'click',
                         {
                             'objectName': objectName,
                             'field': field,
-                            'id': attribute(item, identifierName),
+                            'id': id,
                             'locale': locale,
                             'index': index
                         }
                     ) }}
-                    class="btn btn-info btn-sm"
+                    {{ stimulus_target('translate-ui', 'languageButton') }}
+                    class="btn btn-sm"
+                    style="color: white; background-color: {{ color }}"
                 >
+
                     {{ locale }}
                 </button>
             {% endif %}
