@@ -2,6 +2,7 @@
 
 {# TODO: Can we get rid of this index? #}
 {% set index = 0 %}
+{% set indicatorIndex = 0 %}
 
 {% for item in items %}
     {% for field, type in fields %}
@@ -42,16 +43,19 @@
                             'field': field,
                             'id': id,
                             'locale': locale,
-                            'index': index
+                            'index': index,
+                            'indicatorIndex': indicatorIndex,
                         }
                     ) }}
-                    {{ stimulus_target('translate-ui', 'languageButton') }}
-                    class="btn btn-sm"
-                    style="color: white; background-color: {{ color }}"
+                    class="btn btn-sm btn-outline-secondary"
                 >
-
                     {{ locale }}
                 </button>
+                <div
+                style="color:white;background-color: {{ color }};width: 10px;height: 10px;display: inline-block;"
+                    {{ stimulus_target('translate-ui', 'indicator') }}
+                ></div>
+                {% set indicatorIndex = indicatorIndex + 1 %}
             {% endif %}
         {% endfor %}
 

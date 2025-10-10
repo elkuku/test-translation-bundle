@@ -3,6 +3,7 @@
 namespace App\Controller;
 
 use App\Entity\Translation;
+use App\Service\GoogleTranslateService;
 use App\Service\TranslationHelper;
 use Doctrine\Persistence\ManagerRegistry;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -48,7 +49,7 @@ final class TranslateUiController extends AbstractController
 
             $identifiers = $objectManager->getClassMetadata($entity->className)->getIdentifier();
 
-            // Load translations (TODO: Join?)
+            // Load translations TODO: Join db tables instead?
             $objectIds = [];
             $repository = $doctrine->getRepository(Translation::class);
 
@@ -59,8 +60,9 @@ final class TranslateUiController extends AbstractController
             $translations = $repository->findByObjectAndObjectIds($objectName, $objectIds);
 
             $translationIndex = [];
+
             foreach ($translations as $translation) {
-                $fieldName = "{$translation->objectId}-{$translation->field}-{$translation->locale}";
+                $fieldName = "$translation->objectId-$translation->field-$translation->locale";
                 // TODO: Support for different states (e.g. translated, draft...)
                 $translationIndex[$fieldName] = 'translated';
             }
@@ -80,13 +82,14 @@ final class TranslateUiController extends AbstractController
         return new Response($htmlContent);
     }
 
-    #[Route('/translate-ui/{objectName}/{id}/{field}/{locale}/{fieldIndex}', name: 'app_translate_ui_item', methods: ['GET'])]
+    #[Route('/translate-ui/{objectName}/{id}/{field}/{locale}/{fieldIndex}/{indicatorIndex}', name: 'app_translate_ui_item', methods: ['GET'])]
     public function item(
-        string $objectName, string $id, string $field, string $locale, int $fieldIndex,
+        string $objectName, string $id, string $field, string $locale, int $fieldIndex, int $indicatorIndex,
         ObjectTranslator $translator,
         LocaleAwareInterface $localeAware,
         TranslationHelper $translationHelper,
         ManagerRegistry $doctrine,
+        #[Autowire('%kernel.default_locale%')] string $defaultLocale,
     ): Response {
         $entity = $translationHelper->getTranslatableEntity($objectName);
 
@@ -116,9 +119,11 @@ final class TranslateUiController extends AbstractController
             'field' => $field,
             'id' => $id,
             'locale' => $locale,
+            'defaultLocale' => $defaultLocale,
             'entity' => $entity,
             'object' => $object,
             'fieldIndex' => $fieldIndex,
+            'indicatorIndex' => $indicatorIndex,
         ]);
 
         return new Response($htmlContent);
@@ -160,6 +165,28 @@ final class TranslateUiController extends AbstractController
         $manager->persist($translation);
         $manager->flush();
 
-        return $this->json(['OK'], $statusCode);
+        return $this->json('OK', $statusCode);
+    }
+
+    #[Route('/translate-ui/google-translate', name: 'app_translate_ui_google_translate', methods: ['POST'])]
+    public function googleTranslate(
+        GoogleTranslateService $translator,
+        Request $request,
+    ): JsonResponse {
+        $data = \json_decode($request->getContent(), false, 512, JSON_THROW_ON_ERROR);
+
+        $text = $data->text;
+        $sourceLocale = $data->sourceLocale;
+        $targetLocale = $data->targetLocale;
+
+        try {
+            $message = $translator->translate($text, $targetLocale, $sourceLocale);
+            $statusCode = 200;
+        } catch (\Exception $e) {
+            $message = $e->getMessage();
+            $statusCode = 501;
+        }
+
+        return $this->json($message, $statusCode);
     }
 }

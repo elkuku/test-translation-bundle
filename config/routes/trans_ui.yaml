@@ -1,0 +1,2 @@
+translation_ui:
+    resource: '@ObjectTranslationBundle/config/routes.php'

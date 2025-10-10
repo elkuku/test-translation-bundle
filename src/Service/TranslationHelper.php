@@ -10,20 +10,19 @@ use SymfonyCasts\ObjectTranslationBundle\Mapping\TranslatableProperty;
 class TranslationHelper
 {
     public function __construct(
-        private EntityManagerInterface $entityManager,
-    )
-    {
+        private readonly EntityManagerInterface $entityManager,
+    ) {
     }
 
     public function getTranslatableEntity(string $name): TranslatableEntityType
     {
         $entities = $this->getTranslatableEntities();
 
-        if (array_key_exists($name, $entities)) {
+        if (\array_key_exists($name, $entities)) {
             return $entities[$name];
         }
 
-        throw new \RuntimeException(sprintf('Translation entity %s not found', $name));
+        throw new \RuntimeException(\sprintf('Translation entity %s not found', $name));
     }
 
     /**
@@ -47,9 +46,9 @@ class TranslationHelper
 
         foreach ($classNames as $className) {
             $class = new \ReflectionClass($className);
-            $type = $class->getAttributes(Translatable::class);
+            $classAttributes = $class->getAttributes(Translatable::class);
 
-            if (!$type) {
+            if (!$classAttributes) {
                 continue;
             }
 
@@ -61,7 +60,7 @@ class TranslationHelper
                 }
             }
 
-            $entities[$type[0]->newInstance()->name] = new TranslatableEntityType($className, $properties);
+            $entities[$classAttributes[0]->newInstance()->name] = new TranslatableEntityType($className, $properties);
         }
 
         return $entities;

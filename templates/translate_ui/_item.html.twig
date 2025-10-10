@@ -1,4 +1,3 @@
-
 {# TODO: create a beautiful translate item view #}
 
 {% for property, type in entity.properties %}
@@ -13,6 +12,16 @@
                         class="form-control"
                         data-property="{{ property }}"
                     />
+                    <button
+                        class="btn btn-outline-secondary"
+                        {{ stimulus_action('translate-ui', 'googleTranslate', 'click', {
+                            'text': value,
+                            'sourceLocale': defaultLocale,
+                            'targetLocale': locale,
+                        }) }}
+                    >
+                        G
+                    </button>
                 {% elseif 'markdown' == type %}
                     {# TODO: load some editor? #}
                     <textarea
@@ -36,6 +45,7 @@
         'id': id,
         'locale': locale,
         'index': fieldIndex,
+        'indicatorIndex': indicatorIndex,
     }) }}
 >
     Save

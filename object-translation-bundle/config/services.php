@@ -18,5 +18,8 @@ return static function (ContainerConfigurator $container): void {
             ->alias(ObjectTranslator::class, 'symfonycasts.object_translator')
         ->set('.symfonycasts.object_translator.twig_extension', ObjectTranslatorExtension::class)
             ->tag('twig.extension')
+        ->load('SymfonyCasts\\ObjectTranslationBundle\\Controller\\', __DIR__.'/../src/Controller')
+            ->tag('controller.service_arguments')
+            ->public()
     ;
 };
