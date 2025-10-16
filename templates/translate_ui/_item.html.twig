@@ -11,6 +11,7 @@
                         type="text" value="{{ value }}"
                         class="form-control"
                         data-property="{{ property }}"
+                        id="input-{{ property }}"
                     />
                     <button
                         class="btn btn-outline-secondary"
@@ -18,6 +19,8 @@
                             'text': value,
                             'sourceLocale': defaultLocale,
                             'targetLocale': locale,
+                            'fieldIndex': fieldIndex,
+                            'inputId': 'input-'~property,
                         }) }}
                     >
                         G

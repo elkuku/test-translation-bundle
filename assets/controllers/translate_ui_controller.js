@@ -2,7 +2,7 @@ import {Controller} from '@hotwired/stimulus';
 
 /* stimulusFetch: 'lazy' */
 export default class extends Controller {
-    static targets = ['object', 'listContainer', 'itemContainer', 'statusContainer', 'indicator']
+    static targets = ['object', 'listContainer', 'itemContainer', 'input', 'statusContainer', 'indicator']
 
     async switchObject(event) {
         const objectName = event.params.objectName;
@@ -77,7 +77,7 @@ export default class extends Controller {
             });
 
             if (response.ok) {
-                status.innerHTML = await response.text();
+                status.innerHTML = '';
                 element.innerHTML = '';
                 this.indicatorTargets[indicatorIndex].style.backgroundColor = 'green'
 
@@ -93,21 +93,16 @@ export default class extends Controller {
         this.itemContainerTargets[index].innerHTML = '';
     }
 
-    async googleTranslate({params: {text, sourceLocale, targetLocale}}) {
+    async googleTranslate({params: {text, sourceLocale, targetLocale, fieldIndex, inputId}}) {
         console.log(text);
+        console.log('inputId: ' + inputId);
+        const status = this.statusContainerTargets[fieldIndex]
         const data = {
             text: text,
             sourceLocale: sourceLocale,
             targetLocale: targetLocale,
         }
-        /*
-            objectName: objectName,
-            field: field,
-            id: id,
-            value: value,
-            locale: locale
-        };
-*/
+
         try {
             const response = await fetch('/translate-ui/google-translate', {
                 method: 'POST',
@@ -118,16 +113,20 @@ export default class extends Controller {
             });
 
             if (response.ok) {
-                console.log(await response.text())
-                return
-                status.innerHTML = await response.text();
-                element.innerHTML = '';
+               // console.log(await response.text())
+               // console.log('input',this.inputTargets[fieldIndex].value);
+                const input = document.getElementById(inputId);
+                const translation = await response.text();
+                console.log(translation);
+                console.log('input field', input);
+               // this.inputTargets[fieldIndex].value = translation;
+                input.value = translation;
 
             } else {
-                status.innerHTML = 'Failed to load partial: ' + response.statusText;
+                status.innerHTML = 'Failed to google translate: ' + response.statusText;
             }
         } catch (error) {
-            status.innerHTML = 'Error fetching partial: ' + error;
+            status.innerHTML = 'Error fetching google translate: ' + error;
         }
     }
 }
