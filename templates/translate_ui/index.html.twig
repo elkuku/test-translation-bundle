@@ -9,17 +9,19 @@
         <h2>Translate UI ✅</h2>
 
         <nav class="nav nav-tabs">
-        {% for objectName in objectNames %}
-            <a
-                href="#"
-                data-translate-ui-target="object"
-                data-translate-ui-object-name-param="{{ objectName }}"
-                data-action="translate-ui#switchObject"
-                class="nav-link"
-            >
-                {{ objectName|title }}
-            </a>
-        {% endfor %}
+            {% for objectName in objectNames %}
+                <a
+                    href="#"
+                    class="nav-link"
+                    {{ stimulus_target('translate-ui', 'object') }}
+                    {{ stimulus_action(
+                        'translate-ui', 'switchObject', 'click',
+                        {'uri': path('app_translate_ui_list', {'objectName': objectName})}
+                    ) }}
+                >
+                    {{ objectName|title }}
+                </a>
+            {% endfor %}
         </nav>
 
         <div data-translate-ui-target="listContainer"></div>

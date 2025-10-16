@@ -5,15 +5,14 @@ export default class extends Controller {
     static targets = ['object', 'listContainer', 'itemContainer', 'input', 'statusContainer', 'indicator']
 
     async switchObject(event) {
-        const objectName = event.params.objectName;
-
         this.objectTargets.forEach(target => {
             target.classList.remove('active');
         });
+
         event.target.classList.add('active');
 
         try {
-            const response = await fetch(`/translate-ui/list/${objectName}`);
+            const response = await fetch(event.params.uri);
             if (response.ok) {
                 this.listContainerTarget.innerHTML = await response.text();
             } else {
@@ -24,14 +23,14 @@ export default class extends Controller {
         }
     }
 
-    async loadTranslation({params: {objectName, field, id, locale, index, indicatorIndex}}) {
-        const target = this.itemContainerTargets[index]
-        const status = this.statusContainerTargets[index]
+    async loadTranslation({params: {uri, fieldIndex}}) {
+        const target = this.itemContainerTargets[fieldIndex]
+        const status = this.statusContainerTargets[fieldIndex]
 
         status.innerHTML = 'Loading...';
 
         try {
-            const response = await fetch(`/translate-ui/${objectName}/${id}/${field}/${locale}/${index}/${indicatorIndex}`, {});
+            const response = await fetch(uri);
             if (response.ok) {
                 target.innerHTML = await response.text();
             } else {
@@ -44,12 +43,13 @@ export default class extends Controller {
         status.innerHTML = '';
     }
 
-    async saveTranslation({params: {objectName, id, field, locale, index, indicatorIndex}}) {
-        const element = this.itemContainerTargets[index]
-        const status = this.statusContainerTargets[index]
+    async saveTranslation({params: {uri, data, field, fieldIndex, indicatorIndex}}) {
+        const element = this.itemContainerTargets[fieldIndex]
+        const status = this.statusContainerTargets[fieldIndex]
+
+        let value = ''
 
         status.innerHTML = 'Saving...';
-        let value = ''
 
         for (const el of ['input', 'textarea']) {
             element.querySelectorAll(el).forEach(e => {
@@ -59,16 +59,10 @@ export default class extends Controller {
             })
         }
 
-        const data = {
-            objectName: objectName,
-            field: field,
-            id: id,
-            value: value,
-            locale: locale
-        };
+        data.value = value
 
         try {
-            const response = await fetch('/translate-ui/save', {
+            const response = await fetch(uri, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
@@ -93,9 +87,7 @@ export default class extends Controller {
         this.itemContainerTargets[index].innerHTML = '';
     }
 
-    async googleTranslate({params: {text, sourceLocale, targetLocale, fieldIndex, inputId}}) {
-        console.log(text);
-        console.log('inputId: ' + inputId);
+    async googleTranslate({params: {uri, text, sourceLocale, targetLocale, fieldIndex, inputId}}) {
         const status = this.statusContainerTargets[fieldIndex]
         const data = {
             text: text,
@@ -104,7 +96,7 @@ export default class extends Controller {
         }
 
         try {
-            const response = await fetch('/translate-ui/google-translate', {
+            const response = await fetch(uri, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
@@ -113,14 +105,10 @@ export default class extends Controller {
             });
 
             if (response.ok) {
-               // console.log(await response.text())
-               // console.log('input',this.inputTargets[fieldIndex].value);
                 const input = document.getElementById(inputId);
                 const translation = await response.text();
-                console.log(translation);
-                console.log('input field', input);
-               // this.inputTargets[fieldIndex].value = translation;
-                input.value = translation;
+
+                input.value = translation.replace(/^"(.*)"$/, '$1');
 
             } else {
                 status.innerHTML = 'Failed to google translate: ' + response.statusText;

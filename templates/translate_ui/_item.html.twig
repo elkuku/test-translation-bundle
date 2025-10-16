@@ -16,6 +16,7 @@
                     <button
                         class="btn btn-outline-secondary"
                         {{ stimulus_action('translate-ui', 'googleTranslate', 'click', {
+                            'uri': path('app_translate_ui_google_translate'),
                             'text': value,
                             'sourceLocale': defaultLocale,
                             'targetLocale': locale,
@@ -43,11 +44,15 @@
 <button
     class="btn btn-success"
     {{ stimulus_action('translate-ui', 'saveTranslation', 'click', {
-        'objectName': objectName,
+        'uri': path('app_translate_ui_save'),
+        'data': {
+            'objectName': objectName,
+            'field': field,
+            'id': id,
+            'locale': locale,
+        },
         'field': field,
-        'id': id,
-        'locale': locale,
-        'index': fieldIndex,
+        'fieldIndex': fieldIndex,
         'indicatorIndex': indicatorIndex,
     }) }}
 >
